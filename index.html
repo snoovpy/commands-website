@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>snoovpy — Bot Commands</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181b;
+      --border: #2a2a2e;
+      --purple: #9147ff;
+      --purple-glow: rgba(145, 71, 255, 0.15);
+      --text: #efeff1;
+      --muted: #adadb8;
+      --mod: #ff6b6b;
+      --mod-glow: rgba(255, 107, 107, 0.12);
+      --fun: #00d4aa;
+      --fun-glow: rgba(0, 212, 170, 0.12);
+      --info: #ffb347;
+      --info-glow: rgba(255, 179, 71, 0.12);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      margin-bottom: 56px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--purple-glow);
+      border: 1px solid var(--purple);
+      color: var(--purple);
+      font-size: 11px;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--purple);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    h1 span {
+      color: var(--purple);
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Section ── */
+    section {
+      margin-bottom: 40px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    section:nth-child(2) { animation-delay: 0.05s; }
+    section:nth-child(3) { animation-delay: 0.10s; }
+    section:nth-child(4) { animation-delay: 0.15s; }
+    section:nth-child(5) { animation-delay: 0.20s; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Command grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .cmd {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+      cursor: default;
+    }
+
+    .cmd:hover {
+      transform: translateY(-2px);
+    }
+
+    /* colour variants */
+    .cmd.purple { --accent: var(--purple); --glow: var(--purple-glow); }
+    .cmd.red    { --accent: var(--mod);    --glow: var(--mod-glow); }
+    .cmd.teal   { --accent: var(--fun);    --glow: var(--fun-glow); }
+    .cmd.amber  { --accent: var(--info);   --glow: var(--info-glow); }
+
+    .cmd:hover {
+      border-color: var(--accent, var(--purple));
+      box-shadow: 0 0 16px var(--glow, var(--purple-glow));
+    }
+
+    .cmd-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent, var(--purple));
+    }
+
+    .cmd-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .mod-tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--mod-glow);
+      border: 1px solid var(--mod);
+      color: var(--mod);
+      padding: 1px 6px;
+      border-radius: 3px;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">snoovpy bot</div>
+    <h1>Bot <span>Commands</span></h1>
+    <p class="subtitle">Type any command in chat to use it &nbsp;·&nbsp; prefix every command with !</p>
+  </header>
+
+  <!-- Basic -->
+  <section>
+    <div class="section-label">Basic</div>
+    <div class="grid">
+      <div class="cmd purple">
+        <div class="cmd-name">!hello</div>
+        <div class="cmd-desc">Bot greets you by name.</div>
+      </div>
+      <div class="cmd purple">
+        <div class="cmd-name">!ping</div>
+        <div class="cmd-desc">Check if the bot is alive. Returns Pong!</div>
+      </div>
+      <div class="cmd purple">
+        <div class="cmd-name">!lurk</div>
+        <div class="cmd-desc">Let chat know you're lurking in the shadows.</div>
+      </div>
+      <div class="cmd purple">
+        <div class="cmd-name">!commands</div>
+        <div class="cmd-desc">Shows the link to this page.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stream Info -->
+  <section>
+    <div class="section-label">Stream Info</div>
+    <div class="grid">
+      <div class="cmd amber">
+        <div class="cmd-name">!title</div>
+        <div class="cmd-desc">Shows the current stream title.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!game</div>
+        <div class="cmd-desc">Shows the current game or category.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!uptime</div>
+        <div class="cmd-desc">How long the stream has been live, or how long it's been offline.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!followers</div>
+        <div class="cmd-desc">Shows the total follower count of the channel.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!followage</div>
+        <div class="cmd-desc">How long you've been following the channel.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!accountage</div>
+        <div class="cmd-desc">How old your Twitch account is. Use !accountage @user for others.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!schedule</div>
+        <div class="cmd-desc">Shows the streaming schedule.</div>
+      </div>
+      <div class="cmd amber">
+        <div class="cmd-name">!shoutout @user</div>
+        <div class="cmd-desc">Shouts out another streamer with a link to their channel.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fun -->
+  <section>
+    <div class="section-label">Fun</div>
+    <div class="grid">
+      <div class="cmd teal">
+        <div class="cmd-name">!dice</div>
+        <div class="cmd-desc">Rolls a random dice (1–6).</div>
+      </div>
+      <div class="cmd teal">
+        <div class="cmd-name">!coinflip</div>
+        <div class="cmd-desc">Flips a coin. Heads or tails.</div>
+      </div>
+      <div class="cmd teal">
+        <div class="cmd-name">!8ball &lt;question&gt;</div>
+        <div class="cmd-desc">Ask the magic 8ball anything.</div>
+      </div>
+      <div class="cmd teal">
+        <div class="cmd-name">!rps rock/paper/scissors</div>
+        <div class="cmd-desc">Play rock paper scissors against the bot.</div>
+      </div>
+      <div class="cmd teal">
+        <div class="cmd-name">!quote</div>
+        <div class="cmd-desc">Shows a random saved quote. Use !quote &lt;number&gt; for a specific one.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Socials -->
+  <section>
+    <div class="section-label">Socials</div>
+    <div class="grid">
+      <div class="cmd purple">
+        <div class="cmd-name">!twitter &nbsp;/&nbsp; !x</div>
+        <div class="cmd-desc">Links to snoovpy's X (Twitter) page.</div>
+      </div>
+      <div class="cmd purple">
+        <div class="cmd-name">!discord</div>
+        <div class="cmd-desc">Links to the Discord server.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mod Only -->
+  <section>
+    <div class="section-label">Mod Only 🔒</div>
+    <div class="grid">
+      <div class="cmd red">
+        <div class="cmd-name">!addcmd !name response</div>
+        <div class="cmd-desc">Adds a new custom command on the fly.</div>
+        <span class="mod-tag">Mod only</span>
+      </div>
+      <div class="cmd red">
+        <div class="cmd-name">!removecmd !name</div>
+        <div class="cmd-desc">Removes a custom command.</div>
+        <span class="mod-tag">Mod only</span>
+      </div>
+      <div class="cmd red">
+        <div class="cmd-name">!quote add &lt;text&gt;</div>
+        <div class="cmd-desc">Saves a new quote.</div>
+        <span class="mod-tag">Mod only</span>
+      </div>
+      <div class="cmd red">
+        <div class="cmd-name">!quote remove &lt;number&gt;</div>
+        <div class="cmd-desc">Removes a quote by number.</div>
+        <span class="mod-tag">Mod only</span>
+      </div>
+      <div class="cmd red">
+        <div class="cmd-name">!shoutout @user</div>
+        <div class="cmd-desc">Shouts out another streamer.</div>
+        <span class="mod-tag">Mod only</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>twitch.tv/<a href="https://twitch.tv/snoovpy" target="_blank">snoovpy</a> &nbsp;·&nbsp; x.com/<a href="https://x.com/snoovpy_" target="_blank">snoovpy_</a> &nbsp;·&nbsp; <a href="https://discord.gg/ZTdzS9Qax4" target="_blank">discord</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
